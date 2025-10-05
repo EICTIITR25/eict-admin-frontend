@@ -69,6 +69,8 @@ export const defaultForm = {
   program_for: [],
   cover_media_file: null,
   brochure_file: null,
+  learning: [],
+  career: [],
 };
 export const mapEditedFieldsToApiKeys = (
   editedFields: Record<string, any>

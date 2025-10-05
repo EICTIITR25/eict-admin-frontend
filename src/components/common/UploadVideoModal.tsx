@@ -521,6 +521,7 @@ const VideoUploaderComponent: React.FC<VideoUploaderProps> = memo(
             </div>
 
             {/* Upload Section */}
+            <h3 style={{ color: "red" }}>Please  dont upload video more than 2 GB</h3>
             <div className="UploadVideo_btn">
               <label className="btnUpload" htmlFor="uploadVideoInput">
                 <span>

@@ -16,11 +16,12 @@ const AllOrdersPaymentManagementPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [pageSize, setPageSize] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedCourses, setSelectedCourses] = useState<number[]>([]);
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [selectedFilter, setSelectedFilter] = useState("Last 30 Days");
-  const [showProductDropdown, setShowProductDropdown] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState("Choose your product");
+  // const [selectedCourses, setSelectedCourses] = useState<number[]>([]);
+  // const [showDropdown, setShowDropdown] = useState(false);
+  // const [selectedFilter, setSelectedFilter] = useState("Last 30 Days");
+  // const [showProductDropdown, setShowProductDropdown] = useState(false);
+  // const [selectedProduct, setSelectedProduct] = useState("Choose your product");
+
   const [inputValue, setInputValue] = useState("");
   const [categoryId, setCategoryId] = useState();
   const [startDate, setStartDate] = useState("");
@@ -28,6 +29,8 @@ const AllOrdersPaymentManagementPage = () => {
   const [status, setStatus] = useState("");
   const [csv, setCSV] = useState("");
   const shouldApplyDateFilter = startDate && endDate;
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+
   const { data: orderList = [] } = useFetch(
     "/payments/orders/",
     {
@@ -36,7 +39,6 @@ const AllOrdersPaymentManagementPage = () => {
       search: searchTerm,
       category_id: categoryId,
       status: status,
-      export: csv,
       ...(shouldApplyDateFilter && {
         star_date: startDate,
         end_date: endDate,
@@ -46,6 +48,26 @@ const AllOrdersPaymentManagementPage = () => {
       retry: false,
     }
   );
+  const { data: CsvData = [] } = useFetch(
+    "/payments/orders/export-by-ids",
+    {
+      page: currentPage,
+      page_size: pageSize,
+      search: searchTerm,
+      category_id: categoryId,
+      status: status,
+      order_ids: selectedIds.length > 0 ? selectedIds.join(",") : "",
+      ...(shouldApplyDateFilter && {
+        star_date: startDate,
+        end_date: endDate,
+      }),
+    },
+    {
+      retry: false,
+      enabled: csv === "csv"
+    }
+  );
+  const orders = orderList?.results?.orders || [];
   const downloadCsvString = (csvText: string, fileName = "Order.csv") => {
     const blob = new Blob([csvText], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
@@ -55,7 +77,6 @@ const AllOrdersPaymentManagementPage = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    setCSV("");
   };
 
   const filters = [
@@ -89,10 +110,29 @@ const AllOrdersPaymentManagementPage = () => {
     };
   }, [inputValue]);
   useEffect(() => {
-    if (csv === "csv") {
-      downloadCsvString(orderList);
+    if (csv === "csv" && CsvData && typeof CsvData === "string") {
+      downloadCsvString(CsvData);
+      setCSV("")
     }
-  }, [csv]);
+  }, [csv, CsvData]);
+
+
+  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      const allIds = orders.map((o: any) => o.id);
+      setSelectedIds(allIds);
+    } else {
+      setSelectedIds([]);
+    }
+  };
+
+  const handleSelectOne = (id: number) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
+  };
+
+  const isAllSelected = orders.length > 0 && selectedIds.length === orders.length;
   return (
     <div className="admin_panel">
       <div className="Breadcrumbs">
@@ -234,7 +274,8 @@ const AllOrdersPaymentManagementPage = () => {
               <tr>
                 <th style={{ width: "30px" }}>
                   {" "}
-                  <input type="checkbox" />
+                  <input type="checkbox" checked={isAllSelected}
+                    onChange={handleSelectAll} />
                 </th>
                 <th>Order Id.</th>
                 <th>Name</th>
@@ -250,7 +291,8 @@ const AllOrdersPaymentManagementPage = () => {
               {orderList?.results?.orders?.map((course: any) => (
                 <tr key={course.id}>
                   <td>
-                    <input type="checkbox" />
+                    <input type="checkbox" checked={selectedIds.includes(course.id)}
+                      onChange={() => handleSelectOne(course.id)} />
                   </td>
                   <td>
                     <Link to={`/paymentManagement/taxes/${course.id}`}>

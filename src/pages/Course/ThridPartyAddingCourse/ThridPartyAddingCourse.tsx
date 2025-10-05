@@ -24,6 +24,7 @@ import { getErrorMessage } from "../../../utils/helper";
 import { setSelectedCourse } from "../../../redux/slices/coursesSlice";
 import AddBrouchureModal from "../../../components/common/AddBrouchureModal";
 import useTabCloseWarning from "../../../hooks/useTabCloseWarning";
+import DynamicFormModal from "../../../components/common/DynamicFormModal";
 interface Option {
   label: string;
   value: string;
@@ -42,6 +43,8 @@ const AddCoursePage = () => {
   const [selectedItem, setSelectedItem] = useState<GenericItems | null>(null);
   const [faqId, setFaqId] = useState<(string | number)[]>([]);
   const [moduleId, setModuleId] = useState("");
+  const [showLearning, setShowLearning] = useState(false);
+  const [showCareer, setShowCareer] = useState(false);
   const {
     form,
     handleChange,
@@ -140,7 +143,10 @@ const AddCoursePage = () => {
   );
   const { data: facultyList = [] } = useFetch(
     `/faculties/list/`,
-    {},
+    {
+      page: 1,
+      page_size: 100,
+    },
     {
       retry: false,
     }
@@ -171,6 +177,27 @@ const AddCoursePage = () => {
       retry: false,
     }
   );
+
+  const { data: learningList = [] } = useFetch(
+    `/courses/courses/${courseId || selectedCourse?.base_course_id
+    }/learning-outcomes/`,
+    {},
+    {
+      enabled: !!(courseId || selectedCourse?.id),
+      retry: false,
+    }
+  );
+
+  const { data: careerList = [] } = useFetch(
+    `/courses/courses/${courseId || selectedCourse?.base_course_id
+    }/career-opportunities/`,
+    {},
+    {
+      enabled: !!(courseId || selectedCourse?.id),
+      retry: false,
+    }
+  );
+
   const { data: benifits = [] } = useFetch("/courses/benefits/");
   const { data: highlights = [] } = useFetch("/courses/highlights/");
   const { data: program_for = [] } = useFetch("/courses/program-for/");
@@ -361,6 +388,8 @@ const AddCoursePage = () => {
       );
       const selectedFacultyId =
         selectedCourse?.faculty?.map((item: any) => item.id) || [];
+      const learningListIds = learningList?.map((item: any) => item.id);
+      const careerListIds = careerList?.map((item: any) => item.id);
       const initialForm = {
         name: selectedCourse.title || "",
         cover_media_file: selectedCourse?.cover_media,
@@ -387,7 +416,9 @@ const AddCoursePage = () => {
         educator: selectedFacultyId || [],
         program_benifits: selectedProgramBenifits,
         brochure_file: selectedCourse?.brochure || "",
-        payment_link: selectedCourse?.payment_link || ""
+        payment_link: selectedCourse?.payment_link || "",
+        learning: learningListIds,
+        career: careerListIds,
       };
       setForm(initialForm);
       setOriginalData(initialForm);
@@ -1539,6 +1570,84 @@ const AddCoursePage = () => {
                   </div>
                 ))}
               </div>
+              <div className="col-lg-12 col-md-12">
+                <div className="from-group mb-3">
+                  <div className="hd_bx">
+                    <label> Learning outcome</label>
+                    <button
+                      className="btn"
+                      onClick={() => setShowLearning(true)}
+                      style={{ color: " #023e64" }}
+                    >
+                      + Add More
+                    </button>
+                  </div>
+                  <div className="Courses_checkbx">
+                    {learningList?.map((item: any, index: number) => (
+                      <label key={index + 1}>
+                        <input
+                          type="checkbox"
+                          id={`course-${item.id}`}
+                          checked={form.learning.includes(item.id)}
+                          onChange={() => {
+                            const isSelected = form.learning.includes(item.id);
+                            const updatedCourseIds = isSelected
+                              ? form.learning.filter(
+                                (id: any) => id !== item.id
+                              )
+                              : [...form.learning, item.id];
+
+                            handleChange("learning", updatedCourseIds);
+                          }}
+                        />
+
+                        <span>{item?.name}</span>
+                      </label>
+                    ))}
+                  </div>
+                  {errors?.learning && (
+                    <p style={{ color: "red" }}>{errors.learning}</p>
+                  )}
+                </div>
+              </div>
+              <div className="col-lg-12 col-md-12">
+                <div className="from-group mb-3">
+                  <div className="hd_bx">
+                    <label> Career oppurtunties </label>
+                    <button
+                      className="btn"
+                      onClick={() => setShowCareer(true)}
+                      style={{ color: " #023e64" }}
+                    >
+                      + Add More
+                    </button>
+                  </div>
+                  <div className="Courses_checkbx">
+                    {careerList?.map((item: any, index: number) => (
+                      <label key={index + 1}>
+                        <input
+                          type="checkbox"
+                          id={`course-${item.id}`}
+                          checked={form.career.includes(item.id)}
+                          onChange={() => {
+                            const isSelected = form.career.includes(item.id);
+                            const updatedCourseIds = isSelected
+                              ? form.career.filter((id: any) => id !== item.id)
+                              : [...form.career, item.id];
+
+                            handleChange("career", updatedCourseIds);
+                          }}
+                        />
+
+                        <span>{item?.name}</span>
+                      </label>
+                    ))}
+                  </div>
+                  {errors?.career && (
+                    <p style={{ color: "red" }}>{errors.career}</p>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1799,6 +1908,52 @@ const AddCoursePage = () => {
         onSubmit={handleModuleSubmit}
         module={"Module"}
         sub_module={"Sub Module"}
+      />
+      <DynamicFormModal
+        show={showLearning}
+        setShow={setShowLearning}
+        title="Learning Outcome"
+        createUrl={`/courses/courses/${courseId || selectedCourse?.id
+          }/learning-outcomes/`}
+        refetchKeys={[
+          `/courses/courses/${courseId || selectedCourse?.id
+          }/learning-outcomes/`,
+          "{}",
+        ]}
+        fields={[
+          {
+            name: "name",
+            label: "Learning Outcome",
+            placeholder: "Enter name",
+          },
+        ]}
+        getPayload={(form) => ({
+          name: form.name,
+          is_active: true,
+        })}
+      />
+      <DynamicFormModal
+        show={showCareer}
+        setShow={setShowCareer}
+        title="Career oppurtunties"
+        createUrl={`/courses/courses/${courseId || selectedCourse?.id
+          }/career-opportunities/`}
+        refetchKeys={[
+          `/courses/courses/${courseId || selectedCourse?.id
+          }/career-opportunities/`,
+          "{}",
+        ]}
+        fields={[
+          {
+            name: "name",
+            label: "Career oppurtunties",
+            placeholder: "Enter name",
+          },
+        ]}
+        getPayload={(form) => ({
+          name: form.name,
+          is_active: true,
+        })}
       />
     </>
   );

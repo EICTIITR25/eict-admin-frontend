@@ -40,6 +40,7 @@ export const keyMap: Record<string, string> = {
   investigator_phone: "investigator_phone",
   coordinators: "coordinators",
   end_date: "end_date",
+  total_price: "total_price"
 };
 
 export const defaultForm = {
@@ -62,6 +63,7 @@ export const defaultForm = {
   investigator_phone: "",
   cover_media_file: null,
   brochure_file: null,
+  total_price: ""
 };
 
 export const mapEditedFieldsToApiKeys = (

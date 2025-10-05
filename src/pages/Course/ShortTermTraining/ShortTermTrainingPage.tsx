@@ -24,6 +24,7 @@ import { setSelectedCourse } from "../../../redux/slices/coursesSlice";
 import AddBrouchureModal from "../../../components/common/AddBrouchureModal";
 import useTabCloseWarning from "../../../hooks/useTabCloseWarning";
 import DynamicFormModal from "../../../components/common/DynamicFormModal";
+import UploadCertificateModal from "../../../components/common/UploadCertificateModal";
 interface AboutField {
   id: number;
   value: string;
@@ -147,7 +148,10 @@ const ShortTermTrainingPage = () => {
   );
   const { data: facultyList = [] } = useFetch(
     `/faculties/list/`,
-    {},
+    {
+      page: 1,
+      page_size: 100,
+    },
     {
       retry: false,
     }
@@ -1201,64 +1205,109 @@ const ShortTermTrainingPage = () => {
                 <h3>{form.name}</h3>
               </div>
             </div>
-            <div className="fromSection">
-              <div className="head_bx">
-                <h3>Frequently Asked Questions</h3>
-                <div className="rgt_bx">
-                  <button className="btn" onClick={() => setShowFAQModal(true)}>
-                    Add New FAQ
-                  </button>
-                  <button
-                    className="btnDelate"
-                    disabled={!faqId}
-                    onClick={() => {
-                      deleteFAQ({
-                        body: {
-                          faq_ids: faqId,
-                        },
-                      });
-                    }}
-                  >
-                    <svg
-                      width="14"
-                      height="15"
-                      viewBox="0 0 14 15"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
+            <div className="fromSection fromSection2">
+              <div className="CardfromSection">
+                <div className="head_bx">
+                  <h3>Frequently Asked Questions</h3>
+                  <div className="rgt_bx">
+                    <button
+                      className="btn"
+                      onClick={() => setShowFAQModal(true)}
                     >
-                      <path
-                        d="M4.15426 0.518262C4.31784 0.200625 4.6541 0 5.02065 0H8.66797C9.03452 0 9.37077 0.200625 9.53436 0.518262L9.75247 0.9375H12.6606C13.1968 0.9375 13.63 1.35732 13.63 1.875C13.63 2.39268 13.1968 2.8125 12.6606 2.8125H1.02798C0.492698 2.8125 0.0585938 2.39268 0.0585938 1.875C0.0585938 1.35732 0.492698 0.9375 1.02798 0.9375H3.93614L4.15426 0.518262ZM1.00072 3.75H12.6606V13.125C12.6606 14.1592 11.7912 15 10.7219 15H2.93949C1.89589 15 1.00072 14.1592 1.00072 13.125V3.75ZM3.42419 6.09375V12.6562C3.42419 12.9141 3.66956 13.125 3.90888 13.125C4.20273 13.125 4.39357 12.9141 4.39357 12.6562V6.09375C4.39357 5.83594 4.20273 5.625 3.90888 5.625C3.66956 5.625 3.42419 5.83594 3.42419 6.09375ZM6.33235 6.09375V12.6562C6.33235 12.9141 6.57773 13.125 6.81704 13.125C7.11089 13.125 7.329 12.9141 7.329 12.6562V6.09375C7.329 5.83594 7.11089 5.625 6.81704 5.625C6.57773 5.625 6.33235 5.83594 6.33235 6.09375ZM9.26778 6.09375V12.6562C9.26778 12.9141 9.48589 13.125 9.75247 13.125C10.0191 13.125 10.2372 12.9141 10.2372 12.6562V6.09375C10.2372 5.83594 10.0191 5.625 9.75247 5.625C9.48589 5.625 9.26778 5.83594 9.26778 6.09375Z"
-                        fill="#344563"
-                      />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-              <div className="listFaq">
-                {faqList?.results?.map((item: any, faqIndex: number) => (
-                  <div className="card_item">
-                    <div className="Courses_checkbx d-block">
-                      <label htmlFor={`faq-${faqIndex}`}>
-                        <input
-                          type="checkbox"
-                          id={`faq-${faqIndex}`}
-                          value={item?.id}
-                          checked={faqId.some((id) => id === item.id)}
-                          onChange={() => {
-                            const isSelected = faqId.includes(item.id);
-                            const updatedFaqIds = isSelected
-                              ? faqId.filter((id) => id !== item.id)
-                              : [...faqId, item.id];
-
-                            setFaqId(updatedFaqIds);
-                          }}
+                      Add New FAQ
+                    </button>
+                    <button
+                      className="btnDelate"
+                      disabled={!faqId}
+                      onClick={() => {
+                        deleteFAQ({
+                          body: {
+                            faq_ids: faqId,
+                          },
+                        });
+                      }}
+                    >
+                      <svg
+                        width="14"
+                        height="15"
+                        viewBox="0 0 14 15"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M4.15426 0.518262C4.31784 0.200625 4.6541 0 5.02065 0H8.66797C9.03452 0 9.37077 0.200625 9.53436 0.518262L9.75247 0.9375H12.6606C13.1968 0.9375 13.63 1.35732 13.63 1.875C13.63 2.39268 13.1968 2.8125 12.6606 2.8125H1.02798C0.492698 2.8125 0.0585938 2.39268 0.0585938 1.875C0.0585938 1.35732 0.492698 0.9375 1.02798 0.9375H3.93614L4.15426 0.518262ZM1.00072 3.75H12.6606V13.125C12.6606 14.1592 11.7912 15 10.7219 15H2.93949C1.89589 15 1.00072 14.1592 1.00072 13.125V3.75ZM3.42419 6.09375V12.6562C3.42419 12.9141 3.66956 13.125 3.90888 13.125C4.20273 13.125 4.39357 12.9141 4.39357 12.6562V6.09375C4.39357 5.83594 4.20273 5.625 3.90888 5.625C3.66956 5.625 3.42419 5.83594 3.42419 6.09375ZM6.33235 6.09375V12.6562C6.33235 12.9141 6.57773 13.125 6.81704 13.125C7.11089 13.125 7.329 12.9141 7.329 12.6562V6.09375C7.329 5.83594 7.11089 5.625 6.81704 5.625C6.57773 5.625 6.33235 5.83594 6.33235 6.09375ZM9.26778 6.09375V12.6562C9.26778 12.9141 9.48589 13.125 9.75247 13.125C10.0191 13.125 10.2372 12.9141 10.2372 12.6562V6.09375C10.2372 5.83594 10.0191 5.625 9.75247 5.625C9.48589 5.625 9.26778 5.83594 9.26778 6.09375Z"
+                          fill="#344563"
                         />
-                        <span></span>
-                      </label>
-                    </div>
-                    <div className="content">
-                      <h3>
-                        <span>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                <div className="listFaq">
+                  {faqList?.results?.map((item: any, faqIndex: number) => (
+                    <div className="card_item">
+                      <div className="Courses_checkbx d-block">
+                        <label htmlFor={`faq-${faqIndex}`}>
+                          <input
+                            type="checkbox"
+                            id={`faq-${faqIndex}`}
+                            value={item?.id}
+                            checked={faqId.some((id) => id === item.id)}
+                            onChange={() => {
+                              const isSelected = faqId.includes(item.id);
+                              const updatedFaqIds = isSelected
+                                ? faqId.filter((id) => id !== item.id)
+                                : [...faqId, item.id];
+
+                              setFaqId(updatedFaqIds);
+                            }}
+                          />
+                          <span></span>
+                        </label>
+                      </div>
+                      <div className="content">
+                        <h3>
+                          <span>
+                            <svg
+                              width="21"
+                              height="21"
+                              viewBox="0 0 21 21"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <mask
+                                id="mask0_4084_5585"
+                                maskUnits="userSpaceOnUse"
+                                x="0"
+                                y="0"
+                                width="21"
+                                height="21"
+                              >
+                                <rect
+                                  x="0.03125"
+                                  y="0.871094"
+                                  width="20"
+                                  height="20"
+                                  fill="#D9D9D9"
+                                />
+                              </mask>
+                              <g mask="url(#mask0_4084_5585)">
+                                <path
+                                  d="M10.0286 14.2038L13.362 10.8704L12.1953 9.70378L10.862 11.0371V7.53711H9.19531V11.0371L7.86198 9.70378L6.69531 10.8704L10.0286 14.2038ZM10.0286 19.2038C8.87587 19.2038 7.79253 18.9849 6.77865 18.5471C5.76476 18.1099 4.88281 17.5163 4.13281 16.7663C3.38281 16.0163 2.7892 15.1343 2.35198 14.1204C1.9142 13.1066 1.69531 12.0232 1.69531 10.8704C1.69531 9.71766 1.9142 8.63433 2.35198 7.62044C2.7892 6.60655 3.38281 5.72461 4.13281 4.97461C4.88281 4.22461 5.76476 3.63072 6.77865 3.19294C7.79253 2.75572 8.87587 2.53711 10.0286 2.53711C11.1814 2.53711 12.2648 2.75572 13.2786 3.19294C14.2925 3.63072 15.1745 4.22461 15.9245 4.97461C16.6745 5.72461 17.2681 6.60655 17.7053 7.62044C18.1431 8.63433 18.362 9.71766 18.362 10.8704C18.362 12.0232 18.1431 13.1066 17.7053 14.1204C17.2681 15.1343 16.6745 16.0163 15.9245 16.7663C15.1745 17.5163 14.2925 18.1099 13.2786 18.5471C12.2648 18.9849 11.1814 19.2038 10.0286 19.2038ZM10.0286 17.5371C11.8759 17.5371 13.4489 16.8879 14.7478 15.5896C16.0461 14.2907 16.6953 12.7177 16.6953 10.8704C16.6953 9.02322 16.0461 7.45016 14.7478 6.15128C13.4489 4.85294 11.8759 4.20378 10.0286 4.20378C8.18142 4.20378 6.60865 4.85294 5.31031 6.15128C4.01142 7.45016 3.36198 9.02322 3.36198 10.8704C3.36198 12.7177 4.01142 14.2907 5.31031 15.5896C6.60865 16.8879 8.18142 17.5371 10.0286 17.5371Z"
+                                  fill="#1C1B1F"
+                                />
+                              </g>
+                            </svg>
+                          </span>{" "}
+                          {item.question}
+                        </h3>
+                        <button
+                          className="btnEdit"
+                          onClick={() => {
+                            setSelectedFAQItem(item);
+                            setShowEditFAQModal(true);
+                            setFaqId([]);
+                          }}
+                        >
                           <svg
                             width="21"
                             height="21"
@@ -1267,7 +1316,7 @@ const ShortTermTrainingPage = () => {
                             xmlns="http://www.w3.org/2000/svg"
                           >
                             <mask
-                              id="mask0_4084_5585"
+                              id="mask0_4084_5589"
                               maskUnits="userSpaceOnUse"
                               x="0"
                               y="0"
@@ -1282,59 +1331,26 @@ const ShortTermTrainingPage = () => {
                                 fill="#D9D9D9"
                               />
                             </mask>
-                            <g mask="url(#mask0_4084_5585)">
+                            <g mask="url(#mask0_4084_5589)">
                               <path
-                                d="M10.0286 14.2038L13.362 10.8704L12.1953 9.70378L10.862 11.0371V7.53711H9.19531V11.0371L7.86198 9.70378L6.69531 10.8704L10.0286 14.2038ZM10.0286 19.2038C8.87587 19.2038 7.79253 18.9849 6.77865 18.5471C5.76476 18.1099 4.88281 17.5163 4.13281 16.7663C3.38281 16.0163 2.7892 15.1343 2.35198 14.1204C1.9142 13.1066 1.69531 12.0232 1.69531 10.8704C1.69531 9.71766 1.9142 8.63433 2.35198 7.62044C2.7892 6.60655 3.38281 5.72461 4.13281 4.97461C4.88281 4.22461 5.76476 3.63072 6.77865 3.19294C7.79253 2.75572 8.87587 2.53711 10.0286 2.53711C11.1814 2.53711 12.2648 2.75572 13.2786 3.19294C14.2925 3.63072 15.1745 4.22461 15.9245 4.97461C16.6745 5.72461 17.2681 6.60655 17.7053 7.62044C18.1431 8.63433 18.362 9.71766 18.362 10.8704C18.362 12.0232 18.1431 13.1066 17.7053 14.1204C17.2681 15.1343 16.6745 16.0163 15.9245 16.7663C15.1745 17.5163 14.2925 18.1099 13.2786 18.5471C12.2648 18.9849 11.1814 19.2038 10.0286 19.2038ZM10.0286 17.5371C11.8759 17.5371 13.4489 16.8879 14.7478 15.5896C16.0461 14.2907 16.6953 12.7177 16.6953 10.8704C16.6953 9.02322 16.0461 7.45016 14.7478 6.15128C13.4489 4.85294 11.8759 4.20378 10.0286 4.20378C8.18142 4.20378 6.60865 4.85294 5.31031 6.15128C4.01142 7.45016 3.36198 9.02322 3.36198 10.8704C3.36198 12.7177 4.01142 14.2907 5.31031 15.5896C6.60865 16.8879 8.18142 17.5371 10.0286 17.5371Z"
+                                d="M4.19792 16.7038H5.36458L13.7396 8.34961L13.1562 7.74544L12.5521 7.16211L4.19792 15.5371V16.7038ZM2.53125 18.3704V14.8288L13.7396 3.64128C14.059 3.32183 14.4515 3.16211 14.9171 3.16211C15.3821 3.16211 15.7743 3.32183 16.0937 3.64128L17.2604 4.82878C17.5799 5.14822 17.7396 5.53711 17.7396 5.99544C17.7396 6.45378 17.5799 6.84266 17.2604 7.16211L6.07292 18.3704H2.53125ZM13.7396 8.34961L13.1562 7.74544L12.5521 7.16211L13.7396 8.34961Z"
                                 fill="#1C1B1F"
                               />
                             </g>
                           </svg>
-                        </span>{" "}
-                        {item.question}
-                      </h3>
-                      <button
-                        className="btnEdit"
-                        onClick={() => {
-                          setSelectedFAQItem(item);
-                          setShowEditFAQModal(true);
-                          setFaqId([]);
-                        }}
-                      >
-                        <svg
-                          width="21"
-                          height="21"
-                          viewBox="0 0 21 21"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <mask
-                            id="mask0_4084_5589"
-                            maskUnits="userSpaceOnUse"
-                            x="0"
-                            y="0"
-                            width="21"
-                            height="21"
-                          >
-                            <rect
-                              x="0.03125"
-                              y="0.871094"
-                              width="20"
-                              height="20"
-                              fill="#D9D9D9"
-                            />
-                          </mask>
-                          <g mask="url(#mask0_4084_5589)">
-                            <path
-                              d="M4.19792 16.7038H5.36458L13.7396 8.34961L13.1562 7.74544L12.5521 7.16211L4.19792 15.5371V16.7038ZM2.53125 18.3704V14.8288L13.7396 3.64128C14.059 3.32183 14.4515 3.16211 14.9171 3.16211C15.3821 3.16211 15.7743 3.32183 16.0937 3.64128L17.2604 4.82878C17.5799 5.14822 17.7396 5.53711 17.7396 5.99544C17.7396 6.45378 17.5799 6.84266 17.2604 7.16211L6.07292 18.3704H2.53125ZM13.7396 8.34961L13.1562 7.74544L12.5521 7.16211L13.7396 8.34961Z"
-                              fill="#1C1B1F"
-                            />
-                          </g>
-                        </svg>
-                      </button>
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
+              <UploadCertificateModal
+                courseId={courseId}
+                sampleCertificate={
+                  selectedCourse?.sample_certificate?.certificate_url
+                }
+                certificateId={"EICTIITR-STC"}
+              />
             </div>
           </div>
         </div>
