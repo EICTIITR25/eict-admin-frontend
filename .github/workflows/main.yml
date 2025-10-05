@@ -29,7 +29,7 @@ jobs:
         with:
           args: --delete
         env:
-          AWS_S3_BUCKET: eict-bucket
+          AWS_S3_BUCKET: dashboard.eict.iitr.ac.in
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ap-south-1
