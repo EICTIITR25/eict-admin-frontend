@@ -1,0 +1,191 @@
+/* General Calendar Wrapper */
+.calendar-wrapper {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    position: relative;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Calendar Header Styling */
+.calendar-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.calendar-header button {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    margin: 0 10px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.calendar-header button:hover {
+    background-color: #f0f0f0;
+}
+
+.calendar-header .calendar-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.calendar-header .calendar-title:hover {
+    background-color: #0056b3;
+}
+
+/* Month Picker Dropdown */
+.month-picker {
+    position: absolute;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    border: 1px solid #ccc;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    z-index: 999;
+    width: 200px;
+}
+
+.month-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.month-item {
+    padding: 8px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 1rem;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.month-item:hover,
+.month-item.selected {
+    background-color: #007bff;
+    color: white;
+}
+
+.year-input {
+    margin-top: 10px;
+    padding: 5px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    text-align: center;
+    width: 100%;
+}
+
+/* Calendar Grid and Events Styling */
+.fc-daygrid-day {
+    padding: 5px;
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+}
+
+.fc-daygrid-day-number {
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.fc-daygrid-day-top {
+    padding: 4px;
+    font-size: 1rem;
+    color: #007bff;
+}
+
+.fc-daygrid-day-bottom {
+    padding: 4px;
+}
+
+.fc-theme-standard td .fc-daygrid-day-number {
+    font-weight: 400 !important;
+    font-size: 18px !important;
+    text-align: center !important;
+    color: #000 !important;
+}
+
+.fc-theme-standard th .fc-col-header-cell-cushion {
+    font-weight: 400 !important;
+    font-size: 18px !important;
+    text-align: center !important;
+    color: #000 !important;
+}
+
+.fc-event-end {
+    background: #0373ba !important;
+    border-radius: 4px !important;
+    font-weight: 400;
+    font-size: 18px;
+
+    color: #fff;
+    height: 33px;
+}
+
+.fc-event-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.fc-event-past {
+    background: #0373ba !important;
+}
+.fc-event-end.fc-event-today{ background: #fcb03e !important;}
+.fc-event-end.fc-event-future{ background: #c42730 !important;}
+.fc-daygrid-event-dot {
+    display: none;
+}
+
+.fc-event {
+    background-color: #007bff;
+    color: white;
+    border-radius: 4px;
+    padding: 5px;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.fc-event:hover {
+    background-color: #0056b3;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .calendar-header {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .calendar-header .calendar-title {
+        margin: 10px 0;
+    }
+
+    .month-picker {
+        width: 90%;
+        left: 5%;
+        top: 60px;
+    }
+
+    .month-list {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
