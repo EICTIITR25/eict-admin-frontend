@@ -4,25 +4,33 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import { CalendarApi } from "@fullcalendar/core";
 import "./CalendarPage.scss"
 import { useCrud } from "../../hooks/useCrud";
+import moment from "moment";
 const CalendarPage = () => {
   const { useFetch } = useCrud()
+  const [viewRange, setViewRange] = useState<{ start: string; end: string } | null>(null);
   const calendarRef = useRef<FullCalendar | null>(null);
   const { data: calenderList = [] } = useFetch(
-    "/liveclasses/calendar-events/",
+    viewRange
+      ? `/liveclasses/calendar-events/?start_date=${viewRange.start}&end_date=${viewRange.end}`
+      : "",
     {},
-    { retry: false }
+    {
+      retry: false,
+      enabled: !!viewRange,
+    }
   );
 
   const [events, setEvents] = useState([]);
   useEffect(() => {
-    if (calenderList && calenderList.length > 0) {
-      const eventList = calenderList?.map((item: any) => ({
+    if (calenderList && calenderList?.events?.length > 0) {
+      console.log('calenderList :', calenderList);
+      const eventList = calenderList?.events?.map((item: any) => ({
         title: item.title,
-        date: item.start
+        date: item.date
       }))
       setEvents(eventList)
     }
-  }, [calenderList])
+  }, [calenderList, viewRange])
 
   const handleTitleClick = () => {
     const calendarApi = calendarRef.current?.getApi();
@@ -46,6 +54,14 @@ const CalendarPage = () => {
 
     return () => clearInterval(interval);
   }, []);
+  const handleDatesSet = (arg: any) => {
+    const current = moment(arg.view.currentStart);
+
+    const startDate = current.clone().startOf("month").format("YYYY-MM-DD");
+    const endDate = current.clone().endOf("month").format("YYYY-MM-DD");
+
+    setViewRange({ start: startDate, end: endDate });
+  };
 
   return (
     <div className="admin_panel">
@@ -69,6 +85,7 @@ const CalendarPage = () => {
             minute: "2-digit",
             hour12: false,
           }}
+          datesSet={handleDatesSet}
         />
       </div>
     </div>

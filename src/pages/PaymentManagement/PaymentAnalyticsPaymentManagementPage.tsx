@@ -53,7 +53,7 @@ const PaymentAnalyticsPaymentManagementPage = () => {
       end_date: form?.end_date,
       category_id: categoryId,
       page_size: pageSize,
-      export: csv,
+      export: "csv",
     },
     { retry: false, enabled: !!csv } // default off rakho
   );
@@ -79,11 +79,11 @@ const PaymentAnalyticsPaymentManagementPage = () => {
     { id: 5, value: "Short Term Training" },
     { id: 6, value: "EICT-Third Party" },
   ];
-  useEffect(() => {
-    if (csv === "csv" && studentCsvData && typeof studentCsvData === "string") {
-      downloadCsvString(studentCsvData);
-    }
-  }, [csv, studentCsvData]);
+  // useEffect(() => {
+  //   if (csv === "csv" && studentCsvData && typeof studentCsvData === "string") {
+  //     downloadCsvString(studentCsvData);
+  //   }
+  // }, [csv, studentCsvData]);
   return (
     <div className="admin_panel">
       <div className="Breadcrumbs">

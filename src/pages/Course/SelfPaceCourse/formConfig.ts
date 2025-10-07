@@ -15,6 +15,7 @@ export const requiredFieldsMap: Record<number, FieldErrorMap> = {
     deadline: "Deadline is required",
     brochure_file: "Brochure file is required",
     cover_media_file: "Cover media file is required",
+    about_the_course: "About the course required."
   },
   // Add step 1, 2 etc. later if needed
 };
@@ -37,6 +38,7 @@ export const defaultForm = {
   cover_media_file: null,
   chapter_name: "",
   chapter_description: "",
+  about_the_course: "",
 };
 
 export const keyMap: Record<string, string> = {
@@ -55,6 +57,7 @@ export const keyMap: Record<string, string> = {
   deadline: "application_deadline_write",
   brochure_file: "brochure_file",
   cover_media_file: "cover_media_file",
+  about_the_course: "about_the_course"
 };
 
 export const mapEditedFieldsToApiKeys = (

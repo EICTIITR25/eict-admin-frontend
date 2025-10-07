@@ -21,15 +21,20 @@ jobs:
       - name: Install Dependencies
         run: npm install --legacy-peer-deps
 
+      - name: Set API Base URL
+        run: echo "REACT_APP_API_BASE_URL=https://testapidashboard-eict.iitr.ac.in/api/" > .env.production
+
       - name: Build React App
-        run: npm run build || true
+        run: |
+          unset CI
+          npm run build
 
       - name: Deploy to S3
         uses: jakejarvis/s3-sync-action@v0.5.1
         with:
           args: --delete
         env:
-          AWS_S3_BUCKET: testdashboard.eict.iitr.ac.in
+          AWS_S3_BUCKET: dashboard-eict.iitr.ac.in
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ap-south-1

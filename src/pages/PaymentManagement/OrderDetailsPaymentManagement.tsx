@@ -129,6 +129,8 @@ const OrderDetailsPaymentManagement = () => {
             <p>{orderById?.user_phone}</p>
             <label htmlFor="">University:</label>
             <p>{orderById?.user_institution_name}</p>
+            <label htmlFor="">Address:</label>
+            <p>{orderById?.address}</p>
           </div>
         </div>
       </div>

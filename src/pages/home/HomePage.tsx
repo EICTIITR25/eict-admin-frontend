@@ -1,49 +1,122 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Container } from "@mui/material";
-type CourseProgress = {
-  label: string;
-  value: number;
-  color: string;
-};
+import { useCrud } from "../../hooks/useCrud";
+import moment from "moment";
 type Props = {};
 
 
 const HomePage = (props: Props) => {
-  const dayTabs = ["Daily", "Weekly", "Monthly"];
-  const [activeDayTab, setActiveDayTab] = useState("Daily");
-  const [activeTab, setActiveTab] = useState<string>('selfPaced');
+  const categoryList = [
+    { id: 0, value: "All" },
+    { id: 1, value: "Self Paced" },
+    { id: 2, value: "FDP" },
+    { id: 3, value: "PG Certification" },
+    { id: 5, value: "Short Term Training" },
+    { id: 6, value: "EICT-Third Party" },
+  ];
+  const { useFetch } = useCrud()
+  const dayTabs = ["daily", "weekly", "monthly"];
+  const [activeDayTab, setActiveDayTab] = useState("daily");
+  const [activeTab, setActiveTab] = useState<number>(0);
+  const [progress, setProgress] = useState([]);
+  const colorMap: Record<string, string> = {
+    "Self Paced": "#c42730",
+    "FDP’s": "#0373ba",
+    "Advanced PG Courses": "#fcb03e",
+    "Short Term Courses": "#156c3c"
+  };
 
-  // Handling the tab change
-  const handleTabClick = (tab: string) => {
+  const handleTabClick = (tab: number) => {
     setActiveTab(tab);
   };
 
-  const fdpRequests = Array(7).fill({
-    name: "Nirmala Sitaraman",
-    course: "Fundamentals of Analog and Digital Communication System",
-    date: "18 August 2022",
-    time: "10:15",
-  });
+  const { data: dashboardData = [] } = useFetch(
+    `/dashboard/summary/`,
+    {
+      category: activeTab === 0 ? "" : activeTab,
+      range: activeDayTab
+    },
+    {
+      retry: false,
+    }
+  );
 
-  // Corrected course progress values to be numbers
-  const courseProgress = [
-    { label: 'Self Paced', value: 35, color: '#c42730' },
-    { label: "FDP's", value: 40, color: '#0373ba' },
-    { label: 'Advanced PG Courses', value: 25, color: '#fcb03e' },
-    { label: 'Short Term Courses', value: 15, color: '#156c3c' },
-  ];
+
+  useEffect(() => {
+    if (dashboardData?.sales?.pie) {
+      const response = dashboardData?.sales?.pie?.map((item: any, index: number) => ({
+        label: item.label,
+        value: item.value,
+        percentage: item.percent,
+        color: colorMap[item.label]
+      }))
+      setProgress(response)
+    }
+  }, [dashboardData])
+
   const radius = 100;
   const cx = 120;
   const cy = 120;
-  const total = courseProgress.reduce((sum, item) => sum + item.value, 0);
-
   let cumulative = 0;
+  const totalPercent = 100;
+  // if (!progress.some((item: any) => item.percentage > 0)) {
+  //   return (
+  //     <svg width="230" height="230" viewBox="0 0 230 230">
+  //       <circle
+  //         cx={cx}
+  //         cy={cy}
+  //         r={radius}
+  //         fill="#ccc"
+  //         stroke="#fff"
+  //         strokeWidth={1}
+  //       />
+  //       <text
+  //         x={cx}
+  //         y={cy}
+  //         fill="#000"
+  //         fontSize="14"
+  //         fontWeight="600"
+  //         textAnchor="middle"
+  //         alignmentBaseline="middle"
+  //       >
+  //         No Data
+  //       </text>
+  //     </svg>
+  //   );
+  // }
+  const sectors = progress.map((item: any, index: number) => {
+    if (item.percentage <= 0) return null;
 
-  const sectors = courseProgress.map((item, index) => {
-    const startAngle = (cumulative / total) * 360;
-    const angle = (item.value / total) * 360;
+    if (item.percentage === 100) {
+      return (
+        <g key={index}>
+          <circle
+            cx={cx}
+            cy={cy}
+            r={radius}
+            fill={item.color}
+            stroke="#fff"
+            strokeWidth={1}
+          />
+          <text
+            x={cx}
+            y={cy}
+            fill="#fff"
+            fontSize="14"
+            fontWeight="600"
+            textAnchor="middle"
+            alignmentBaseline="middle"
+          >
+            {item.label} ({item.percentage}%)
+          </text>
+        </g>
+      );
+    }
+
+    const startAngle = (cumulative / totalPercent) * 360;
+    const angle = (item.percentage / totalPercent) * 360;
     const endAngle = startAngle + angle;
-    cumulative += item.value;
+    cumulative += item.percentage;
 
     const largeArc = angle > 180 ? 1 : 0;
 
@@ -56,13 +129,18 @@ const HomePage = (props: Props) => {
     const midAngle = (startAngle + endAngle) / 2;
     const labelX = cx + (radius * 0.6) * Math.cos((Math.PI / 180) * (midAngle - 90));
     const labelY = cy + (radius * 0.6) * Math.sin((Math.PI / 180) * (midAngle - 90));
+
     return (
       <g key={index}>
+        {/* Slice */}
         <path
           d={`M ${cx} ${cy} L ${startX} ${startY} A ${radius} ${radius} 0 ${largeArc} 1 ${endX} ${endY} Z`}
-          fill={item.color}  stroke="#fff"   
-          strokeWidth={1} 
+          fill={item.color}
+          stroke="#fff"
+          strokeWidth={1}
         />
+
+        {/* Label */}
         <text
           x={labelX}
           y={labelY}
@@ -72,7 +150,7 @@ const HomePage = (props: Props) => {
           textAnchor="middle"
           alignmentBaseline="middle"
         >
-          {item.value} %
+          {item.label} ({item.percentage}%)
         </text>
       </g>
     );
@@ -83,113 +161,97 @@ const HomePage = (props: Props) => {
       <div className="DashboardWrapp">
         <div className="tab_listDash">
           <ul>
-            <li>
-              <button
-                className={`btn ${activeTab === 'selfPaced' ? 'active' : ''}`}
-                onClick={() => handleTabClick('selfPaced')}
-              >
-                Self Paced
-              </button>
-            </li>
-            <li>
-              <button
-                className={`btn ${activeTab === 'fdp' ? 'active' : ''}`}
-                onClick={() => handleTabClick('fdp')}
-              >
-                FDP’s
-              </button>
-            </li>
-            <li>
-              <button
-                className={`btn ${activeTab === 'advancePG' ? 'active' : ''}`}
-                onClick={() => handleTabClick('advancePG')}
-              >
-                Advance PG Course
-              </button>
-            </li>
-            <li>
-              <button
-                className={`btn ${activeTab === 'shortTerm' ? 'active' : ''}`}
-                onClick={() => handleTabClick('shortTerm')}
-              >
-                Short Term Training
-              </button>
-            </li>
+            {
+              categoryList.map((item: any, index: number) => (
+                <li>
+                  <button
+                    className={`btn ${activeTab === item.id ? 'active' : ''}`}
+                    onClick={() => handleTabClick(item.id)}
+                  >
+                    {item.value}
+                  </button>
+                </li>
+              ))
+            }
           </ul>
         </div>
         <div className="content_tab">
           <div className={`tab-content`}>
-             <div>
+            <div>
               <div className="payment_data_wrapp">
                 <div className="left_bx">
                   <div className="crd_bx crd_dash">
                     <h3>Total Enrollments</h3>
-                    <p>3280</p>
-                    <div className="progressbar">
+                    <p>{dashboardData?.enrollments?.total}</p>
+                    {/* <div className="progressbar">
                       <div className="progressline" style={{ width: "80%" }}></div>
                     </div>
-                    <h4>80% Increase in 20 Days</h4>
+                    <h4>{dashboardData?.enrollments?.new_in_last_n_days?.change_pct_vs_prev}% Increase in {dashboardData?.enrollments?.new_in_last_n_days?.days} Days</h4> */}
                   </div>
                   <div className="crd_bx crd_dash">
                     <h3>New Enrollments</h3>
-                    <p>245</p>
-                    <div className="progressbar">
+                    <p>{dashboardData?.enrollments?.new_in_last_n_days?.count}</p>
+                    {/* <div className="progressbar">
                       <div className="progressline" style={{ width: "50%" }}></div>
                     </div>
-                    <h4>50% Increase in 20 Days</h4>
+                    <h4>{dashboardData?.enrollments?.new_in_last_n_days?.change_pct_vs_prev}% Increase in {dashboardData?.enrollments?.new_in_last_n_days?.days} Days</h4> */}
                   </div>
                 </div>
                 <div className="rgt_bx crd_dash">
-                  <div className="hd_bx">
-                    <h3>Payment Analytics</h3>
-                    <div className="tab_day">
-                      {dayTabs.map((day, index) => (
-                        <button
-                          key={index}
-                          className={`btn ${activeDayTab === day ? "active" : ""}`}
-                          onClick={() => setActiveDayTab(day)}
-                        >
-                          {day}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="grap_payment">
-                    <div className="grap">
-                      <div
-                        className="circle_grap">
-                        <svg width="230" height="230" viewBox="0 0 230 230">
-                          {sectors}
-                        </svg>
-                      </div>
-                      <div className="grapPoint">
-                        <ul>
-                          {courseProgress.map((item, index) => (
-                            <li key={index}>
-                              {item.label}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-
-                    </div>
-
-                    <div className="tatal_sale_wrapp">
+                  {
+                    activeTab != 6 ? <>
                       <div className="hd_bx">
-                        <h3>Total Sales</h3>
-                        <h4>₹25160</h4>
+                        <h3>Payment Analytics</h3>
+                        <div className="tab_day">
+                          {dayTabs.map((day, index) => (
+                            <button
+                              key={index}
+                              className={`btn ${activeDayTab === day ? "active" : ""}`}
+                              onClick={() => setActiveDayTab(day)}
+                            >
+                              {day.charAt(0).toUpperCase() + day.slice(1).toLowerCase()}
+                            </button>
+                          ))}
+                        </div>
                       </div>
-                      <ul>
-                        {courseProgress.map((item, index) => (
-                          <li key={index}>
-                            <span>{item.label}</span>
-                            <span>₹25160</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
+
+                      <div className="grap_payment">
+                        <div className="grap">
+                          <div
+                            className="circle_grap">
+                            <svg width="230" height="230" viewBox="0 0 230 230">
+                              {sectors}
+                            </svg>
+                          </div>
+                          <div className="grapPoint">
+                            <ul>
+                              {progress.map((item: any, index: number) => (
+                                <li key={index}>
+                                  {item.label}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+
+                        </div>
+
+                        <div className="tatal_sale_wrapp">
+                          <div className="hd_bx">
+                            <h3>Total Sales</h3>
+                            <h4>₹{dashboardData?.sales?.total}</h4>
+                          </div>
+                          <ul>
+                            {progress.map((item: any, index: number) => (
+                              <li key={index}>
+                                <span>{item.label}</span>
+                                <span>₹{item.value}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div></> : <p>No Data Available</p>
+                  }
+
                 </div>
               </div>
               <div className="Upcomingevent_Wrapp">
@@ -198,16 +260,20 @@ const HomePage = (props: Props) => {
                     <h3>Upcoming Events</h3>
                   </div>
                   <div className="UpcomingeventList">
-                    {Array(8).fill(0).map((_, index) => (
-                      <div className="card_event" key={index}>
-                        <div className="date">11<span>May</span></div>
-                        <div className="event_dt">
-                          <h3>{index % 2 === 0 ? "UPSC Pre Live Class" : "Test Series- SSC"}</h3>
-                          <p>08:30 - 12:30</p>
-                          <h4>Kanishka Singh, Srishti Mishra</h4>
-                        </div>
-                      </div>
-                    ))}
+                    {
+                      dashboardData?.upcoming_live_classes?.length > 0 ? (
+                        dashboardData.upcoming_live_classes.map((event: any, index: number) => (
+                          <div className="card_event" key={index}>
+                            <div className="date">{moment(event?.date).format("DD MMM")}</div>
+                            <div className="event_dt">
+                              <h3>{event.course_name}</h3>
+                              <p>{moment(event.start_time, "HH:mm").format("hh:mm A")} - {moment(event?.end_time, "HH:mm").format("hh:mm A")}</p>
+                              <h4>{event?.title}</h4>
+                            </div>
+                          </div>
+                        ))
+                      ) : <p>No Upcoming Events</p>
+                    }
                   </div>
                 </div>
 
@@ -218,28 +284,32 @@ const HomePage = (props: Props) => {
                   <table className="table">
                     <thead>
                       <tr>
-                        <th>STUDENT NAME</th>
-                        <th style={{ width: "28%" }}>COURSE NAME</th>
+                        <th>NAME</th>
+                        <th style={{ width: "28%" }}>COLLEGE NAME</th>
                         <th>REQUEST DATE</th>
                         <th>TIME</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {fdpRequests.map((req, index) => (
-                        <tr key={index}>
-                          <td>{req.name}</td>
-                          <td>{req.course}</td>
-                          <td>{req.date}</td>
-                          <td>{req.time}</td>
-                        </tr>
-                      ))}
+                      {
+                        dashboardData?.fdp_requests?.length > 0 ? (
+                          dashboardData.fdp_requests.map((event: any, index: number) => (
+                            <tr key={index}>
+                              <td>{event.student_name}</td>
+                              <td>{event.college_name}</td>
+                              <td>{event.request_date}</td>
+                              <td>{event.time}</td>
+                            </tr>
+                          ))
+                        ) : <p>No FDP Request</p>
+                      }
                     </tbody>
                   </table>
                 </div>
               </div>
 
             </div>
-           
+
           </div>
         </div>
 

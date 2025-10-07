@@ -35,8 +35,8 @@ const StudentManagementstudentDetailPage = () => {
       retry: false,
     }
   );
-  const { mutate: addCourse } = useCreate(
-    `/students/students/${id}/enrollments/add`,
+  const { mutate: addCourses } = useCreate(
+    `/students/students/${id}/enrollments/add/`,
     ["{}", `/students/students/${id}/enrollments/`],
     {
       onSuccess: () => {
@@ -433,7 +433,7 @@ const StudentManagementstudentDetailPage = () => {
                 className="btn"
                 disabled={!isFieldsEmpty(["category", "course"])}
                 onClick={() => {
-                  addCourse({
+                  addCourses({
                     user_id: id,
                     course_id: form.course,
                   });

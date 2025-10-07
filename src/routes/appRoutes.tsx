@@ -43,6 +43,7 @@ import AllGalleryPage from "../pages/GalleryManagement/AllGalleryPage";
 import AddGalleryPage from "../pages/GalleryManagement/AddGalleryPage";
 import GalleryDetailsPage from "../pages/GalleryManagement/GalleryDetailsPage";
 import EditGalleryPage from "../pages/GalleryManagement/EditGalleryPage";
+import GeneratedCertificatePage from "../pages/CertificateManagement/GeneratedCertificatePage";
 const appRoutes: RouteType[] = [
   {
     path: "/announcement",
@@ -52,6 +53,11 @@ const appRoutes: RouteType[] = [
   {
     path: "/certificate-management/all-imports",
     element: <CreateCertificatePage />,
+    state: "CertificateManagement",
+  },
+  {
+    path: "/certificate-management/generated-certificate",
+    element: <GeneratedCertificatePage />,
     state: "CertificateManagement",
   },
   {
@@ -380,6 +386,14 @@ const appRoutes: RouteType[] = [
         state: "CertificateManagement.createcertificate",
         sidebarProps: {
           displayText: "Create Certificate",
+        },
+      },
+      {
+        path: "/certificate-management/generated-certificate",
+        element: <GeneratedCertificatePage />,
+        state: "CertificateManagement.generatedcertificate",
+        sidebarProps: {
+          displayText: "Generated Certificate",
         },
       },
     ],

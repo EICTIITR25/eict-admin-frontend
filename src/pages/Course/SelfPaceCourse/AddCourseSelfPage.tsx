@@ -156,7 +156,10 @@ const AddCourseSelfPage = () => {
 
   const { data: facultyList = [] } = useFetch(
     `/faculties/list/`,
-    {},
+    {
+      page: 1,
+      page_size: 100,
+    },
     {
       retry: false,
     }
@@ -305,6 +308,7 @@ const AddCourseSelfPage = () => {
         brochure_file: selectedCourse?.brochure || "",
         course_id: selectedCourseIds,
         cover_media_file: selectedCourse?.cover_media,
+        about_the_course: selectedCourse?.about_the_course
       };
       setForm(initialForm);
       setOriginalData(initialForm);
@@ -469,6 +473,7 @@ const AddCourseSelfPage = () => {
                     "brochure_file",
                     "course_id",
                     "cover_media_file",
+                    "about_the_course"
                   ])
                 }
               >
@@ -790,6 +795,24 @@ const AddCourseSelfPage = () => {
                       value={form["description"]}
                       onChange={(e) =>
                         handleChange("description", e.target.value)
+                      }
+                    />
+                    {errors?.description && (
+                      <p style={{ color: "red" }}>{errors.description}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="col-lg-12 col-md-12">
+                  <div className="from-group mb-3">
+                    <label>About The Course</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="Enter"
+                      value={form["about_the_course"]}
+                      onChange={(e) =>
+                        handleChange("about_the_course", e.target.value)
                       }
                     />
                     {errors?.description && (
@@ -1196,6 +1219,7 @@ const AddCourseSelfPage = () => {
                         "brochure_file",
                         "course_id",
                         "cover_media_file",
+                        "about_the_course"
                       ])
                     }
                   >
@@ -1602,170 +1626,254 @@ const AddCourseSelfPage = () => {
                             <div className="card_Child_list">
                               {course.resources.map(
                                 (child: any, childIndex: any) => (
-                                  <div className="card_Child" key={childIndex}>
-                                    <div className="left_bx">
-                                      <div className="Courses_checkbx d-block">
-                                        <label
-                                          htmlFor={`child-${courseIndex}-${childIndex}`}
-                                        >
-                                          <input
-                                            type="checkbox"
-                                            id={`child-${courseIndex}-${childIndex}`}
-                                            value={child?.id}
-                                            // Add checked prop to control the resource checkbox state
-                                            checked={
-                                              resourceId?.some(
-                                                (item) => item.id === child?.id
-                                              ) || false
-                                            }
-                                            onChange={(e) => {
-                                              const isChecked =
-                                                e.target.checked;
-                                              const resourceObj = {
-                                                id: child?.id,
-                                                title: child?.title,
-                                                resource_type:
-                                                  child?.resource_type,
-                                                courseId: course?.id,
-                                              };
-                                              setChapterId([]);
+                                  <>
+                                    <div className="card_Child" key={childIndex}>
+                                      <div className="left_bx">
+                                        <div className="Courses_checkbx d-block">
+                                          <label
+                                            htmlFor={`child-${courseIndex}-${childIndex}`}
+                                          >
+                                            <input
+                                              type="checkbox"
+                                              id={`child-${courseIndex}-${childIndex}`}
+                                              value={child?.id}
+                                              // Add checked prop to control the resource checkbox state
+                                              checked={
+                                                resourceId?.some(
+                                                  (item) => item.id === child?.id
+                                                ) || false
+                                              }
+                                              onChange={(e) => {
+                                                const isChecked =
+                                                  e.target.checked;
+                                                const resourceObj = {
+                                                  id: child?.id,
+                                                  title: child?.title,
+                                                  resource_type:
+                                                    child?.resource_type,
+                                                  courseId: course?.id,
+                                                };
+                                                setChapterId([]);
 
-                                              setResourceId((prev) => {
-                                                const selectedChapterIds =
-                                                  Array.from(
-                                                    new Set(
-                                                      prev.map(
-                                                        (item) => item.courseId
+                                                setResourceId((prev) => {
+                                                  const selectedChapterIds =
+                                                    Array.from(
+                                                      new Set(
+                                                        prev.map(
+                                                          (item) => item.courseId
+                                                        )
                                                       )
-                                                    )
-                                                  );
+                                                    );
 
-                                                const isSameChapter =
-                                                  selectedChapterIds.length ===
-                                                  0 ||
-                                                  selectedChapterIds.includes(
-                                                    course?.id
-                                                  );
+                                                  const isSameChapter =
+                                                    selectedChapterIds.length ===
+                                                    0 ||
+                                                    selectedChapterIds.includes(
+                                                      course?.id
+                                                    );
+
+                                                  if (isChecked) {
+                                                    const filtered = isSameChapter
+                                                      ? prev
+                                                      : [];
+
+                                                    const alreadyExists =
+                                                      filtered.some(
+                                                        (item) =>
+                                                          item.id === child?.id
+                                                      );
+                                                    return alreadyExists
+                                                      ? filtered
+                                                      : [
+                                                        ...filtered,
+                                                        resourceObj,
+                                                      ];
+                                                  } else {
+                                                    return prev.filter(
+                                                      (item) =>
+                                                        item.id !== child?.id
+                                                    );
+                                                  }
+                                                });
 
                                                 if (isChecked) {
-                                                  const filtered = isSameChapter
-                                                    ? prev
-                                                    : [];
-
-                                                  const alreadyExists =
-                                                    filtered.some(
-                                                      (item) =>
-                                                        item.id === child?.id
-                                                    );
-                                                  return alreadyExists
-                                                    ? filtered
-                                                    : [
-                                                      ...filtered,
-                                                      resourceObj,
-                                                    ];
-                                                } else {
-                                                  return prev.filter(
-                                                    (item) =>
-                                                      item.id !== child?.id
-                                                  );
+                                                  setRescourceData(child);
                                                 }
-                                              });
-
-                                              if (isChecked) {
-                                                setRescourceData(child);
-                                              }
-                                            }}
-                                          />
-                                          <span></span>
-                                        </label>
-                                      </div>
-                                      <div className="drag_handle">
-                                        <img
-                                          src={assets.images.draghandle}
-                                          alt="Drag"
-                                        />
-                                      </div>
-                                      <div className="num">{`${courseIndex + 1
-                                        }.${childIndex + 1}`}</div>
-                                      {child?.resource_type === "pdf" ? (
-                                        <>
-                                          <div className="Ques_docoment">
-                                            <img
-                                              src={assets.images.docoument}
-                                              alt="Document"
+                                              }}
                                             />
-                                          </div>
-                                          <div className="ques_name">
-                                            {child.title}
-                                          </div>
-                                        </>
-                                      ) : (
-                                        <>
-                                          <div className="ques_img">
-                                            {child.resource_type === "video" ? (
-                                              <VideoThumbnail
-                                                url={child.url}
-                                                alt={
-                                                  child.original_video_name ||
-                                                  "Video"
-                                                }
-                                              />
-                                            ) : (
+                                            <span></span>
+                                          </label>
+                                        </div>
+                                        <div className="drag_handle">
+                                          <img
+                                            src={assets.images.draghandle}
+                                            alt="Drag"
+                                          />
+                                        </div>
+                                        <div className="num">{`${courseIndex + 1
+                                          }.${childIndex + 1}`}</div>
+                                        {child?.resource_type === "pdf" ? (
+                                          <>
+                                            <div className="Ques_docoment">
                                               <img
-                                                src={child.url}
-                                                alt={
-                                                  child.original_video_name ||
-                                                  "Image"
-                                                }
+                                                src={assets.images.docoument}
+                                                alt="Document"
                                               />
-                                            )}
-                                          </div>
-                                          <div className="ques_name">
-                                            {child?.resource_type === "video"
-                                              ? child.original_video_name
-                                              : child.title}
-                                          </div>
-                                        </>
-                                      )}
-                                      {/* <div className="ques_name">
+                                            </div>
+                                            <div className="ques_name">
+                                              {child.title}
+                                            </div>
+                                          </>
+                                        ) : (
+                                          <>
+                                            <div className="ques_img">
+                                              <img
+                                                src={
+                                                  child?.resource_type ===
+                                                    "video"
+                                                    ? assets.images
+                                                      .otherProduct01
+                                                    : child.url
+                                                }
+                                                alt={child.original_video_name}
+                                              />
+                                            </div>
+                                            <div className="ques_name">
+                                              {child?.resource_type === "video"
+                                                ? child.original_video_name
+                                                : child.title}
+                                            </div>
+                                          </>
+                                        )}
+                                        {/* <div className="ques_name">
                                         {child.original_video_name}
                                       </div> */}
-                                    </div>
-                                    <div className="right_bx">
-                                      {child?.resource_type === "video" &&
-                                        !child?.mask_as_free ? (
-                                        <button
-                                          className="mark_btn"
-                                          onClick={() => {
-                                            setRescourceData(child);
-                                            setMarkAsFree(true);
-                                          }}
-                                        >
-                                          Mark as a free lecture
-                                        </button>
-                                      ) : (
-                                        child?.resource_type === "video" && (
+                                      </div>
+                                      <div className="right_bx">
+                                        {child?.resource_type === "video" &&
+                                          !child?.mask_as_free ? (
                                           <button
                                             className="mark_btn"
-                                            disabled
-                                          // onClick={() => {
-                                          //   setRescourceData(child);
-                                          //   setMarkAsFree(true);
-                                          // }}
+                                            onClick={() => {
+                                              setRescourceData(child);
+                                              setMarkAsFree(true);
+                                            }}
                                           >
-                                            Demo Lecture
+                                            Mark as a free lecture
                                           </button>
-                                        )
-                                      )}
-                                      {child?.resource_type === "video" && (
-                                        <div className="timer">
-                                          {formatSecondsToHHMMSS(
-                                            child.original_duration
-                                          )}
-                                        </div>
-                                      )}
+                                        ) : (
+                                          child?.resource_type === "video" && (
+                                            <button
+                                              className="mark_btn"
+                                              disabled
+                                            // onClick={() => {
+                                            //   setRescourceData(child);
+                                            //   setMarkAsFree(true);
+                                            // }}
+                                            >
+                                              Demo Lecture
+                                            </button>
+                                          )
+                                        )}
+                                        {child?.resource_type === "video" && (
+                                          <div className="timer">
+                                            {formatSecondsToHHMMSS(
+                                              child.original_duration
+                                            )}
+                                          </div>
+                                        )}
+                                      </div>
                                     </div>
-                                  </div>
+                                    {child?.sectional_test && (
+                                      <div
+                                        className="card_Child"
+                                        key={`sectional-test-${childIndex}`}
+                                      >
+                                        <div className="left_bx">
+                                          <div className="Courses_checkbx d-block">
+                                            <label
+                                              htmlFor={`sectional-test-${courseIndex}-${childIndex}`}
+                                            >
+                                              <input
+                                                type="checkbox"
+                                                id={`sectional-test-${courseIndex}-${childIndex}`}
+                                                value={child.sectional_test.id}
+                                                // checked={
+                                                //   sectionalTestId?.some(
+                                                //     (item) =>
+                                                //       item.id ===
+                                                //       child.sectional_test.id
+                                                //   ) || false
+                                                // }
+                                                onChange={(e) => {
+                                                  const isChecked =
+                                                    e.target.checked;
+                                                  const sectionalTestObj = {
+                                                    id: child.sectional_test.id,
+                                                    title:
+                                                      child.sectional_test
+                                                        .title,
+                                                    resourceId: child.id,
+                                                  };
+                                                  setChapterId([]);
+                                                  setResourceId([]);
+
+                                                  // setSectionalTestId((prev) => {
+                                                  //   if (isChecked) {
+                                                  //     const alreadyExists =
+                                                  //       prev.some(
+                                                  //         (item) =>
+                                                  //           item.id ===
+                                                  //           child.sectional_test
+                                                  //             .id
+                                                  //       );
+                                                  //     return alreadyExists
+                                                  //       ? prev
+                                                  //       : [
+                                                  //           ...prev,
+                                                  //           sectionalTestObj,
+                                                  //         ];
+                                                  //   } else {
+                                                  //     return prev.filter(
+                                                  //       (item) =>
+                                                  //         item.id !==
+                                                  //         child.sectional_test
+                                                  //           .id
+                                                  //     );
+                                                  //   }
+                                                  // });
+
+                                                  if (isChecked) {
+                                                    setRescourceData(child);
+                                                  }
+                                                }}
+                                              />
+                                              <span></span>
+                                            </label>
+                                          </div>
+                                          <div className="drag_handle">
+                                            <img
+                                              src={assets.images.draghandle}
+                                              alt="Drag"
+                                            />
+                                          </div>
+                                          <div className="num">{`${courseIndex + 1
+                                            }.${childIndex + 1}.1`}</div>
+                                          <div className="ques_name">
+                                            {child.sectional_test.title}
+                                          </div>
+                                        </div>
+                                        <div className="right_bx">
+                                          <div className="timer">
+                                            {formatSecondsToHHMMSS(
+                                              child.sectional_test
+                                                .test_trigger_duration
+                                            )}
+                                          </div>
+                                        </div>
+                                      </div>
+                                    )}
+                                  </>
                                 )
                               )}
                             </div>
@@ -1959,6 +2067,7 @@ const AddCourseSelfPage = () => {
                 sampleCertificate={
                   selectedCourse?.sample_certificate?.certificate_url
                 }
+                certificateId={'EICTIITR-SPC'}
               />
             </div>
           </div>

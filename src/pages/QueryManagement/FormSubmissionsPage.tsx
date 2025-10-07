@@ -16,6 +16,8 @@ interface FormSubmission {
   mobile_number?: string;
   message: string;
   submitted_at: string;
+  college_name: string;
+  proposed_date: string;
 }
 
 const FormSubmissionsPage: React.FC = () => {
@@ -503,6 +505,30 @@ const FormSubmissionsPage: React.FC = () => {
                 </div>
               </div>
             </div>
+            {selectedSubmission?.form_type === "FDPContactRequest" && (
+              <>
+                <div className="col-lg-6 col-md-12">
+                  <div className="form-group mb-3">
+                    <label>College Name</label>
+                    <p className="form-control-plaintext">
+                      {selectedSubmission?.college_name || "N/A"}
+                    </p>
+                  </div>
+                </div>
+                <div className="col-lg-6 col-md-12">
+                  <div className="form-group mb-3">
+                    <label className="form-label">Proposed Date</label>
+                    <p className="form-control-plaintext">
+                      {selectedSubmission
+                        ? moment(selectedSubmission.proposed_date).format(
+                            "DD-MM-YYYY hh:mm A"
+                          )
+                        : "N/A"}
+                    </p>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </Modal.Body>
         <Modal.Footer>

@@ -1,14 +1,7 @@
-import React, {
-  useState,
-  useEffect,
-  ChangeEvent,
-  FormEvent,
-  useCallback,
-} from "react";
+import React, { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCrud } from "../../hooks/useCrud";
 import { toast } from "react-toastify";
-import Cropper from "react-easy-crop";
 
 interface HeaderForm {
   name: string;
@@ -21,10 +14,6 @@ interface HeaderErrors {
   general?: string;
 }
 
-const CROP_WIDTH = 665;
-const CROP_HEIGHT = 680;
-const ASPECT_RATIO = CROP_WIDTH / CROP_HEIGHT;
-
 const AddHeaderManagementPage: React.FC = () => {
   const navigate = useNavigate();
   const { useCreate } = useCrud();
@@ -34,14 +23,8 @@ const AddHeaderManagementPage: React.FC = () => {
     name: "",
     image: null,
   });
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [errors, setErrors] = useState<HeaderErrors>({});
-
-  const [imageSrc, setImageSrc] = useState<string | null>(null);
-  const [crop, setCrop] = useState({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1);
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
-  const [showCropper, setShowCropper] = useState(false);
-  const [croppedImage, setCroppedImage] = useState<string | null>(null);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -56,69 +39,12 @@ const AddHeaderManagementPage: React.FC = () => {
         ...prev,
         image: "Please upload a valid image file (jpg/png)",
       }));
+      setImagePreview(null);
       return;
     }
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setImageSrc(reader.result as string);
-        setShowCropper(true);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const onCropComplete = useCallback((_: any, croppedAreaPixels: any) => {
-    setCroppedAreaPixels(croppedAreaPixels);
-  }, []);
-
-  const getCroppedImg = async (imageSrc: string, crop: any): Promise<File> => {
-    const image = new Image();
-    image.src = imageSrc;
-    await new Promise((resolve) => (image.onload = resolve));
-
-    const canvas = document.createElement("canvas");
-    canvas.width = CROP_WIDTH;
-    canvas.height = CROP_HEIGHT;
-    const ctx = canvas.getContext("2d")!;
-
-    ctx.drawImage(
-      image,
-      crop.x,
-      crop.y,
-      crop.width,
-      crop.height,
-      0,
-      0,
-      CROP_WIDTH,
-      CROP_HEIGHT
-    );
-
-    return new Promise((resolve) => {
-      canvas.toBlob((blob) => {
-        if (blob) {
-          const file = new File([blob], "cropped_image.jpg", {
-            type: "image/jpeg",
-          });
-          setCroppedImage(URL.createObjectURL(blob));
-          setFormData((prev) => ({ ...prev, image: file }));
-          resolve(file);
-        }
-      }, "image/jpeg");
-    });
-  };
-
-  const handleCropConfirm = async () => {
-    if (imageSrc && croppedAreaPixels) {
-      await getCroppedImg(imageSrc, croppedAreaPixels);
-      setShowCropper(false);
-    }
-  };
-
-  const handleCropCancel = () => {
-    setShowCropper(false);
-    setImageSrc(null);
-    setCroppedAreaPixels(null);
+    setFormData((prev) => ({ ...prev, image: file }));
+    setImagePreview(file ? URL.createObjectURL(file) : null);
+    setErrors((prev) => ({ ...prev, image: "" }));
   };
 
   const validate = () => {
@@ -157,13 +83,14 @@ const AddHeaderManagementPage: React.FC = () => {
     });
   };
 
+  // Clean up the object URL to prevent memory leaks
   useEffect(() => {
     return () => {
-      if (croppedImage) {
-        URL.revokeObjectURL(croppedImage);
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
       }
     };
-  }, [croppedImage]);
+  }, [imagePreview]);
 
   return (
     <div className="admin_panel">
@@ -191,33 +118,45 @@ const AddHeaderManagementPage: React.FC = () => {
               <small className="text-danger">{errors.name}</small>
             )}
           </div>
-
           <div className="UploadLogoForm">
             <label>Upload Header Image</label>
-            <input
-              type="file"
-              name="image"
-              id="image"
-              accept="image/jpeg,image/png"
-              onChange={handleFileChange}
-            />
-
+            <label htmlFor="image" className="Upload">
+              <input
+                type="file"
+                name="image"
+                id="image"
+                accept="image/jpeg,image/png"
+                onChange={handleFileChange}
+              />
+              <span>Choose File</span>
+            </label>
+            {formData.image && (
+              <p className="mt-2">Selected: {formData.image.name}</p>
+            )}
             {errors.image && (
               <small className="text-danger">{errors.image}</small>
             )}
-
-            {croppedImage && (
+            {imagePreview && (
               <div
                 className="image-preview"
-                style={{ marginTop: "10px", textAlign: "center" }}
+                style={{
+                  marginTop: "10px",
+                  display: "flex",
+                  justifyContent: "center",
+                }}
               >
                 <img
-                  src={croppedImage}
+                  src={imagePreview}
                   alt="Header Image Preview"
-                  style={{ maxWidth: "200px", border: "1px solid #ddd" }}
+                  style={{
+                    maxWidth: "200px",
+                    maxHeight: "200px",
+                    objectFit: "contain",
+                  }}
                 />
               </div>
             )}
+            <p>Note: Please upload a single jpg or png file</p>
           </div>
 
           <div className="btn_grp">
@@ -234,90 +173,6 @@ const AddHeaderManagementPage: React.FC = () => {
           </div>
         </form>
       </div>
-
-      {showCropper && imageSrc && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0,0,0,0.7)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 1000,
-          }}
-        >
-          <div
-            style={{
-              width: "600px",
-              background: "#fff",
-              borderRadius: "8px",
-              overflow: "hidden",
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            <div
-              style={{
-                position: "relative",
-                height: "400px",
-                background: "#333",
-              }}
-            >
-              <Cropper
-                image={imageSrc}
-                crop={crop}
-                zoom={zoom}
-                aspect={ASPECT_RATIO}
-                onCropChange={setCrop}
-                onZoomChange={setZoom}
-                onCropComplete={onCropComplete}
-              />
-            </div>
-
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                gap: "12px",
-                padding: "15px",
-                borderTop: "1px solid #eee",
-              }}
-            >
-              <button
-                className="btn"
-                type="button"
-                onClick={handleCropConfirm}
-                style={{
-                  background: "#28a745",
-                  color: "#fff",
-                  padding: "8px 16px",
-                  borderRadius: "5px",
-                  border: "none",
-                  cursor: "pointer",
-                }}
-              >
-                Crop & Save
-              </button>
-              <button
-                className="btn"
-                type="button"
-                onClick={() => setShowCropper(false)}
-                style={{
-                  background: "#dc3545",
-                  color: "#fff",
-                  padding: "8px 16px",
-                  borderRadius: "5px",
-                  border: "none",
-                  cursor: "pointer",
-                }}
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

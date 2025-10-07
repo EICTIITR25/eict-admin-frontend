@@ -17,6 +17,7 @@ interface Notice {
   id: number;
   title: string;
   description: string;
+  link?: string;
   posted_date: string;
   is_active: boolean;
 }
@@ -39,6 +40,7 @@ const NoticeBoardPage: React.FC = () => {
   const [formData, setFormData] = useState<Partial<Notice>>({
     title: "",
     description: "",
+    link: "",
     posted_date: moment().format("YYYY-MM-DD"),
   });
 
@@ -46,10 +48,12 @@ const NoticeBoardPage: React.FC = () => {
     title: string;
     posted_date: string;
     description: string;
+    link: string;
   }>({
     title: "",
     posted_date: "",
     description: "",
+    link: "",
   });
 
   const { useFetch, useCreate, useUpdate, useDelete } = useCrud();
@@ -138,10 +142,8 @@ const NoticeBoardPage: React.FC = () => {
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    if (name !== "posted_date") {
-      setFormData((prev) => ({ ...prev, [name]: value }));
-      setErrors((prev) => ({ ...prev, [name]: "" }));
-    }
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const validate = () => {
@@ -149,11 +151,14 @@ const NoticeBoardPage: React.FC = () => {
       title: string;
       posted_date: string;
       description: string;
+      link: string;
     }> = {};
     if (!formData.title) newErrors.title = "Title is required";
     if (!formData.posted_date) newErrors.posted_date = "Date is required";
     if (!formData.description)
       newErrors.description = "Description is required";
+    if (formData.link && !/^https?:\/\/[^\s$.?#].[^\s]*$/.test(formData.link))
+      newErrors.link = "Please enter a valid URL";
     return newErrors;
   };
 
@@ -165,6 +170,7 @@ const NoticeBoardPage: React.FC = () => {
           title: string;
           posted_date: string;
           description: string;
+          link: string;
         }
       );
     } else {
@@ -176,6 +182,7 @@ const NoticeBoardPage: React.FC = () => {
           setFormData({
             title: "",
             description: "",
+            link: "",
             posted_date: moment().format("YYYY-MM-DD"),
           });
         },
@@ -195,6 +202,7 @@ const NoticeBoardPage: React.FC = () => {
           title: string;
           posted_date: string;
           description: string;
+          link: string;
         }
       );
     } else {
@@ -211,6 +219,7 @@ const NoticeBoardPage: React.FC = () => {
             setFormData({
               title: "",
               description: "",
+              link: "",
               posted_date: moment().format("YYYY-MM-DD"),
             });
             setSelectedNotice(null);
@@ -228,6 +237,7 @@ const NoticeBoardPage: React.FC = () => {
     setFormData({
       title: notice.title,
       description: notice.description,
+      link: notice.link || "",
       posted_date: notice.posted_date.split("T")[0],
     });
     setShowMainEditModal(true);
@@ -317,7 +327,7 @@ const NoticeBoardPage: React.FC = () => {
                   <td>
                     {expandedRows.includes(notice.id)
                       ? notice.description
-                      : `${notice.description.slice(0, 50)}`}
+                      : `${notice.description.slice(0, 50)} `}
                     <button
                       onClick={() => toggleReadMore(notice.id)}
                       className="readmore"
@@ -463,9 +473,10 @@ const NoticeBoardPage: React.FC = () => {
           setFormData({
             title: "",
             description: "",
+            link: "",
             posted_date: moment().format("YYYY-MM-DD"),
           });
-          setErrors({ title: "", posted_date: "", description: "" });
+          setErrors({ title: "", posted_date: "", description: "", link: "" });
         }}
         dialogClassName="modalfullCustom modalSM modalMd"
         aria-labelledby="example-custom-modal-styling-title"
@@ -509,6 +520,22 @@ const NoticeBoardPage: React.FC = () => {
                   )}
                 </div>
               </div>
+              <div className="col-lg-12 col-md-12">
+                <div className="from-group mb-3">
+                  <label>Link (Optional)</label>
+                  <input
+                    type="text"
+                    name="link"
+                    className="form-control"
+                    placeholder="Enter URL (e.g., https://example.com)"
+                    value={formData.link}
+                    onChange={handleChange}
+                  />
+                  {errors.link && (
+                    <div className="error-text">{errors.link}</div>
+                  )}
+                </div>
+              </div>
             </div>
             <div className="row">
               <div className="col-lg-12 col-md-12">
@@ -535,12 +562,14 @@ const NoticeBoardPage: React.FC = () => {
                       setFormData({
                         title: "",
                         description: "",
+                        link: "",
                         posted_date: moment().format("YYYY-MM-DD"),
                       });
                       setErrors({
                         title: "",
                         posted_date: "",
                         description: "",
+                        link: "",
                       });
                     }}
                   >
@@ -569,9 +598,10 @@ const NoticeBoardPage: React.FC = () => {
           setFormData({
             title: "",
             description: "",
+            link: "",
             posted_date: moment().format("YYYY-MM-DD"),
           });
-          setErrors({ title: "", posted_date: "", description: "" });
+          setErrors({ title: "", posted_date: "", description: "", link: "" });
           setSelectedNotice(null);
         }}
         dialogClassName="modalfullCustom modalSM modalMd"
@@ -614,6 +644,22 @@ const NoticeBoardPage: React.FC = () => {
                   )}
                 </div>
               </div>
+              <div className="col-lg-12 col-md-12">
+                <div className="from-group mb-3">
+                  <label>Link (Optional)</label>
+                  <input
+                    type="text"
+                    name="link"
+                    className="form-control"
+                    placeholder="Enter URL (e.g., https://example.com)"
+                    value={formData.link}
+                    onChange={handleChange}
+                  />
+                  {errors.link && (
+                    <div className="error-text">{errors.link}</div>
+                  )}
+                </div>
+              </div>
             </div>
             <div className="row">
               <div className="col-lg-12 col-md-12">
@@ -640,12 +686,14 @@ const NoticeBoardPage: React.FC = () => {
                       setFormData({
                         title: "",
                         description: "",
+                        link: "",
                         posted_date: moment().format("YYYY-MM-DD"),
                       });
                       setErrors({
                         title: "",
                         posted_date: "",
                         description: "",
+                        link: "",
                       });
                       setSelectedNotice(null);
                     }}
