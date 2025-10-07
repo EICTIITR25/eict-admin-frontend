@@ -25,7 +25,9 @@ jobs:
         run: echo "REACT_APP_API_BASE_URL=https://testapidashboard-eict.iitr.ac.in/api/" > .env.production
 
       - name: Build React App
-        run: npm run build
+        run: |
+          unset CI
+          npm run build
 
       - name: Deploy to S3
         uses: jakejarvis/s3-sync-action@v0.5.1
