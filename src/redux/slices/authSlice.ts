@@ -13,7 +13,7 @@ export const loginUser = createAsyncThunk(
       formData.append("email", email);
       formData.append("password", password);
       const res = await axios.post(
-        "https://testapidashboard-eict.iitr.ac.in/api/auth/login/",
+        `${process.env.REACT_APP_API_BASE_URL}/auth/login/`,
         formData,
         {
           headers: {
