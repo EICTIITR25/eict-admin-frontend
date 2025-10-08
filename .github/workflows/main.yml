@@ -22,7 +22,7 @@ jobs:
         run: npm install --legacy-peer-deps
 
       - name: Set API Base URL
-        run: echo "REACT_APP_API_BASE_URL=https://testapidashboard-eict.iitr.ac.in/api/" > .env.production
+        run: echo "REACT_APP_API_BASE_URL=https://testapidashboard-eict.iitr.ac.in/api" > .env.production
 
       - name: Build React App
         run: |
