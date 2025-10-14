@@ -32,7 +32,7 @@ export const defaultForm = {
   sale_price: "",
   is_active: false,
   total_price: "",
-  gst: "",
+  gst: "0",
   deadline: "",
   brochure_file: null,
   cover_media_file: null,

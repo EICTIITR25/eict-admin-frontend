@@ -302,7 +302,7 @@ const AddCourseSelfPage = () => {
             .toISOString()
             .slice(0, 10) || "",
         sale_price: selectedCourse?.sales_price || "",
-        gst: selectedCourse?.gst_percentage || "",
+        gst: selectedCourse?.gst_percentage || "0",
         total_price: selectedCourse?.total_price || "",
         course_faculty_id: selectedFacultyId || [],
         brochure_file: selectedCourse?.brochure || "",
@@ -1784,34 +1784,34 @@ const AddCourseSelfPage = () => {
                                         )}
                                       </div>
                                     </div>
-                                    {child?.sectional_test && (
+                                    {child?.sectional_tests.length>0 && child?.sectional_tests?.map((test:any,testIdx:any)=>(
                                       <div
                                         className="card_Child"
-                                        key={`sectional-test-${childIndex}`}
+                                        key={`sectional-test-${childIndex}-${testIdx}`}
                                       >
                                         <div className="left_bx">
                                           <div className="Courses_checkbx d-block">
                                             <label
-                                              htmlFor={`sectional-test-${courseIndex}-${childIndex}`}
+                                              htmlFor={`sectional-test-${courseIndex}-${childIndex}-${testIdx}`}
                                             >
                                               <input
                                                 type="checkbox"
-                                                id={`sectional-test-${courseIndex}-${childIndex}`}
-                                                value={child.sectional_test.id}
+                                                id={`sectional-test-${courseIndex}-${childIndex}-${testIdx}`}
+                                                value={test.id}
                                                 // checked={
                                                 //   sectionalTestId?.some(
                                                 //     (item) =>
                                                 //       item.id ===
-                                                //       child.sectional_test.id
+                                                //       child.sectional_tests.id
                                                 //   ) || false
                                                 // }
                                                 onChange={(e) => {
                                                   const isChecked =
                                                     e.target.checked;
                                                   const sectionalTestObj = {
-                                                    id: child.sectional_test.id,
+                                                    id: test.id,
                                                     title:
-                                                      child.sectional_test
+                                                      test
                                                         .title,
                                                     resourceId: child.id,
                                                   };
@@ -1824,7 +1824,7 @@ const AddCourseSelfPage = () => {
                                                   //       prev.some(
                                                   //         (item) =>
                                                   //           item.id ===
-                                                  //           child.sectional_test
+                                                  //           child.sectional_tests
                                                   //             .id
                                                   //       );
                                                   //     return alreadyExists
@@ -1837,7 +1837,7 @@ const AddCourseSelfPage = () => {
                                                   //     return prev.filter(
                                                   //       (item) =>
                                                   //         item.id !==
-                                                  //         child.sectional_test
+                                                  //         child.sectional_tests
                                                   //           .id
                                                   //     );
                                                   //   }
@@ -1858,21 +1858,20 @@ const AddCourseSelfPage = () => {
                                             />
                                           </div>
                                           <div className="num">{`${courseIndex + 1
-                                            }.${childIndex + 1}.1`}</div>
+                                            }.${childIndex + 1}.${testIdx+1}`}</div>
                                           <div className="ques_name">
-                                            {child.sectional_test.title}
+                                            {test.title}
                                           </div>
                                         </div>
                                         <div className="right_bx">
                                           <div className="timer">
                                             {formatSecondsToHHMMSS(
-                                              child.sectional_test
-                                                .test_trigger_duration
+                                              test.test_trigger_duration
                                             )}
                                           </div>
                                         </div>
                                       </div>
-                                    )}
+                                    )) }
                                   </>
                                 )
                               )}

@@ -60,7 +60,7 @@ export const defaultForm = {
   end_date: "",
   deadline: "",
   category_id: "6",
-  gst: "",
+  gst: "0",
   sale_price: "",
   payment_link: "",
   total_fees: "",

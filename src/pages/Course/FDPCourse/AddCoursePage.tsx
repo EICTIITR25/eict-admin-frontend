@@ -331,7 +331,7 @@ const AddCoursePage = () => {
         investigator_email: selectedCourse?.investigator_email || "",
         investigator_phone: selectedCourse?.investigator_phone || "",
         sale_price: selectedCourse?.sales_price || "",
-        gst: selectedCourse?.gst_percentage || "",
+        gst: selectedCourse?.gst_percentage || "0",
         brochure_file: selectedCourse?.brochure || "",
         coordinators:
           selectedCourse?.coordinators?.length > 0

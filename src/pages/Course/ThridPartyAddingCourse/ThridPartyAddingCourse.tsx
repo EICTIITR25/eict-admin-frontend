@@ -411,7 +411,7 @@ const AddCoursePage = () => {
             .toISOString()
             .slice(0, 10) || "",
         sale_price: selectedCourse?.sales_price || "",
-        gst: selectedCourse?.gst_percentage || "",
+        gst: selectedCourse?.gst_percentage || "0",
         total_fees: selectedCourse?.total_price || "",
         educator: selectedFacultyId || [],
         program_benifits: selectedProgramBenifits,

@@ -538,7 +538,7 @@ const AddCoursePgCetificationPage = () => {
             .toISOString()
             .slice(0, 10) || "",
         sale_price: selectedCourse?.sales_price || "",
-        gst: selectedCourse?.gst_percentage || "",
+        gst: selectedCourse?.gst_percentage || "0",
         total_fees: selectedCourse?.total_price || "",
         educator: selectedFacultyId || [],
         course_benefits: selectedProgramBenifits,
@@ -2456,96 +2456,98 @@ const AddCoursePgCetificationPage = () => {
                                     </div>
 
                                     {/* Sectional Test as a Separate Card */}
-                                    {child?.sectional_test && (
-                                      <div
-                                        className="card_Child"
-                                        key={`sectional-test-${childIndex}`}
-                                      >
-                                        <div className="left_bx">
-                                          <div className="Courses_checkbx d-block">
-                                            <label
-                                              htmlFor={`sectional-test-${courseIndex}-${childIndex}`}
-                                            >
-                                              <input
-                                                type="checkbox"
-                                                id={`sectional-test-${courseIndex}-${childIndex}`}
-                                                value={child.sectional_test.id}
-                                                // checked={
-                                                //   sectionalTestId?.some(
-                                                //     (item) =>
-                                                //       item.id ===
-                                                //       child.sectional_test.id
-                                                //   ) || false
-                                                // }
-                                                onChange={(e) => {
-                                                  const isChecked =
-                                                    e.target.checked;
-                                                  const sectionalTestObj = {
-                                                    id: child.sectional_test.id,
-                                                    title:
-                                                      child.sectional_test
-                                                        .title,
-                                                    resourceId: child.id,
-                                                  };
-                                                  setChapterId([]);
-                                                  setResourceId([]);
+                                    {child?.sectional_tests.length > 0 &&
+                                      child?.sectional_tests?.map(
+                                        (test: any, testIdx: any) => (
+                                          <div
+                                            className="card_Child"
+                                            key={`sectional-test-${childIndex}-${testIdx}`}
+                                          >
+                                            <div className="left_bx">
+                                              <div className="Courses_checkbx d-block">
+                                                <label
+                                                  htmlFor={`sectional-test-${courseIndex}-${childIndex}-${testIdx}`}
+                                                >
+                                                  <input
+                                                    type="checkbox"
+                                                    id={`sectional-test-${courseIndex}-${childIndex}-${testIdx}`}
+                                                    value={test.id}
+                                                    // checked={
+                                                    //   sectionalTestId?.some(
+                                                    //     (item) =>
+                                                    //       item.id ===
+                                                    //       child.sectional_tests.id
+                                                    //   ) || false
+                                                    // }
+                                                    onChange={(e) => {
+                                                      const isChecked =
+                                                        e.target.checked;
+                                                      const sectionalTestObj = {
+                                                        id: test.id,
+                                                        title: test.title,
+                                                        resourceId: child.id,
+                                                      };
+                                                      setChapterId([]);
+                                                      setResourceId([]);
 
-                                                  // setSectionalTestId((prev) => {
-                                                  //   if (isChecked) {
-                                                  //     const alreadyExists =
-                                                  //       prev.some(
-                                                  //         (item) =>
-                                                  //           item.id ===
-                                                  //           child.sectional_test
-                                                  //             .id
-                                                  //       );
-                                                  //     return alreadyExists
-                                                  //       ? prev
-                                                  //       : [
-                                                  //           ...prev,
-                                                  //           sectionalTestObj,
-                                                  //         ];
-                                                  //   } else {
-                                                  //     return prev.filter(
-                                                  //       (item) =>
-                                                  //         item.id !==
-                                                  //         child.sectional_test
-                                                  //           .id
-                                                  //     );
-                                                  //   }
-                                                  // });
+                                                      // setSectionalTestId((prev) => {
+                                                      //   if (isChecked) {
+                                                      //     const alreadyExists =
+                                                      //       prev.some(
+                                                      //         (item) =>
+                                                      //           item.id ===
+                                                      //           child.sectional_tests
+                                                      //             .id
+                                                      //       );
+                                                      //     return alreadyExists
+                                                      //       ? prev
+                                                      //       : [
+                                                      //           ...prev,
+                                                      //           sectionalTestObj,
+                                                      //         ];
+                                                      //   } else {
+                                                      //     return prev.filter(
+                                                      //       (item) =>
+                                                      //         item.id !==
+                                                      //         child.sectional_tests
+                                                      //           .id
+                                                      //     );
+                                                      //   }
+                                                      // });
 
-                                                  if (isChecked) {
-                                                    setResourceData(child);
-                                                  }
-                                                }}
-                                              />
-                                              <span></span>
-                                            </label>
+                                                      if (isChecked) {
+                                                        setResourceData(child);
+                                                      }
+                                                    }}
+                                                  />
+                                                  <span></span>
+                                                </label>
+                                              </div>
+                                              <div className="drag_handle">
+                                                <img
+                                                  src={assets.images.draghandle}
+                                                  alt="Drag"
+                                                />
+                                              </div>
+                                              <div className="num">{`${
+                                                courseIndex + 1
+                                              }.${childIndex + 1}.${
+                                                testIdx + 1
+                                              }`}</div>
+                                              <div className="ques_name">
+                                                {test.title}
+                                              </div>
+                                            </div>
+                                            <div className="right_bx">
+                                              <div className="timer">
+                                                {formatSecondsToHHMMSS(
+                                                  test.test_trigger_duration
+                                                )}
+                                              </div>
+                                            </div>
                                           </div>
-                                          <div className="drag_handle">
-                                            <img
-                                              src={assets.images.draghandle}
-                                              alt="Drag"
-                                            />
-                                          </div>
-                                          <div className="num">{`${
-                                            courseIndex + 1
-                                          }.${childIndex + 1}.1`}</div>
-                                          <div className="ques_name">
-                                            {child.sectional_test.title}
-                                          </div>
-                                        </div>
-                                        <div className="right_bx">
-                                          <div className="timer">
-                                            {formatSecondsToHHMMSS(
-                                              child.sectional_test
-                                                .test_trigger_duration
-                                            )}
-                                          </div>
-                                        </div>
-                                      </div>
-                                    )}
+                                        )
+                                      )}
                                   </>
                                 )
                               )}

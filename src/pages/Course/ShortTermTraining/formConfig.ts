@@ -43,7 +43,7 @@ export const defaultForm = {
   start_from: "",
   end_date: "",
   sale_price: "",
-  gst: "",
+  gst: "0",
   is_active: false,
   deadline: "",
   course_faculty_id: "",

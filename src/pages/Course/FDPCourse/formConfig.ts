@@ -48,7 +48,7 @@ export const defaultForm = {
   description: "",
   venue: "",
   course_venue: "",
-  gst: "",
+  gst: "0",
   category_id: "2",
   hub_venue: "",
   spoke_venue: "",

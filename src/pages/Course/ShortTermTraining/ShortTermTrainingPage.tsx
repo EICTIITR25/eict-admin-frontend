@@ -333,7 +333,7 @@ const ShortTermTrainingPage = () => {
         end_date:
           new Date(selectedCourse.end_date).toISOString().slice(0, 10) || "",
         sale_price: selectedCourse?.sales_price || "",
-        gst: selectedCourse?.gst_percentage || "",
+        gst: selectedCourse?.gst_percentage || "0",
         total_fees: selectedCourse?.total_price || "",
         course_faculty_id: selectedFacultyId || "",
         brochure_file: selectedCourse?.brochure || "",
